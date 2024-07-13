@@ -29,7 +29,7 @@
                     <div class="space-x-6 font-bold flex">
                         <div>
                             <button type="button" class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                                <a href="/profiles"><img class="h-8 w-8 rounded-full" src="{{ asset('img.png') }}" alt=""></a>
+                                <a href="/profile"><img class="h-8 w-8 rounded-full" src="{{ asset('img.png') }}" alt=""></a>
                             </button>
                         </div>
                         <form action="/logout" method="post">

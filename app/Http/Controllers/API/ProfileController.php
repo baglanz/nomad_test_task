@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\ProfileService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,30 +29,17 @@ class ProfileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function store(Request $request, ProfileService $service)
     {
-        $user = User::where('id', Auth::id())->find($id);
-
-        if (!$user) {
-            return response()->json([
-                'error' => 'Unauthorized'
-            ], 403);
-        }
-
         $data = $request->validate([
-            'name' => 'required',
-            'number' => 'required',
-            'password' => 'nullable', 'string', 'min:6'
+            'name' => ['required', 'string', 'max:255'],
+            'number' => ['required', 'regex:/^\+7\d{10}$/'],
+            'password' => ['nullable', 'confirmed', 'string', 'min:6'],
         ]);
 
-        $user->name = $data['name'];
-        $user->number = $data['number'];
+        $user = $request->user();
 
-        if ($request->filled('password')) {
-            $user->password = bcrypt($data['password']);
-        }
-
-        $user->save();
+        $service->update($user, $data);
 
         return response()->json($user);
     }

@@ -9,6 +9,6 @@ Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::apiResource('/apicontacts',ContactController::class);
+    Route::apiResource('/contacts',ContactController::class);
     Route::apiResource('/profile', ProfileController::class);
 });

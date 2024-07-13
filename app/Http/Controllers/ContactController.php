@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreContactRequest;
+use App\Http\Requests\UpdateContactRequest;
 use App\Models\Contact;
 use App\Models\User;
-use App\Services\ContactService;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class ContactController extends Controller
 {
@@ -95,19 +94,13 @@ class ContactController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Contact $contact)
+    public function update(UpdateContactRequest $request, Contact $contact)
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:20'],
-            'email' => ['required', 'string', 'email', Rule::unique('contacts')->ignore($contact->id),],
-            'number' => ['required', 'regex:/^\+7\d{10}$/', Rule::unique('contacts')->ignore($contact->id),],
-        ]);
+        $contact->update($request->validated());
 
         if ($contact->user_id !== auth()->id()) {
             abort(404);
         }
-
-        $contact->update($data);
 
         return redirect('/contacts/' . $contact->id);
     }

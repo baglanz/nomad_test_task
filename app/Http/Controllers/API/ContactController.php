@@ -4,8 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreContactRequest;
+use App\Http\Requests\UpdateContactRequest;
 use App\Models\Contact;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ContactController extends Controller
@@ -57,21 +57,15 @@ class ContactController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Contact $contact)
+    public function update(UpdateContactRequest $request, Contact $contact)
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:20'],
-            'email' => ['required', 'string', 'email', 'unique:contacts', 'max:255'],
-            'number' => ['required', 'regex:/^\+7\d{10}$/', 'unique:contacts'],
-        ]);
+        $contact->update($request->validated());
 
         if ($contact->user_id !== auth()->id()) {
             return response()->json([
                 'error' => 'Unauthorized'
             ], 403);
         }
-
-        $contact->update($data);
 
         return response()->json($contact);
     }

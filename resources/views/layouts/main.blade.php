@@ -28,8 +28,8 @@
                     @auth
                         <div class="space-x-6 font-bold flex">
                             <div>
-                                <button type="button" class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                                    <a href="/profile"><img class="h-8 w-8 rounded-full" src="{{ asset('img.png') }}" alt=""></a>
+                                <button type="button" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                    <a href="/profile">{{ Auth::user()->name }}</a>
                                 </button>
                             </div>
                             <form action="/logout" method="post">

@@ -3,7 +3,7 @@
 @section('title', 'Contacts')
 
 @section('content')
-    <div class="relative overflow-x-auto shadow-md mt-0.5">
+    <div class="relative overflow-x-auto shadow-md">
         <div class="pb-4 bg-white dark:bg-gray-900">
             <div class="px-4 py-5 sm:px-6">
                 <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">Your contacts list</p>

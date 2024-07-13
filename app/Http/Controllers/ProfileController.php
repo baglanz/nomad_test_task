@@ -13,33 +13,23 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        $users = User::find(Auth::user());
-
-        return view('profiles.index', compact('users'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        $users = User::find(Auth::user());
-
-        return view('profiles.edit', compact('users'));
+        return view('profile.edit', [
+            'user' => Auth::user()
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
         $profileAttributes = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'number' => ['required', 'string', 'max:255'],
-            'password' => ['nullable', 'string', 'min:6'],
+            'number' => ['required', 'regex:/^\+7\d{10}$/'],
+            'password' => ['nullable', 'confirmed', 'string', 'min:6'],
         ]);
 
-        $user = User::findOrFail($id);
+        $user = Auth::user();
 
         $user->name = $profileAttributes['name'];
         $user->number = $profileAttributes['number'];
@@ -50,6 +40,6 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return redirect('/profiles');
+        return redirect('/profile');
     }
 }

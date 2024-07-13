@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [IndexController::class, 'index'])->name('home');
 
 Route::resource('/contacts', ContactController::class)->middleware('auth');
-Route::resource('/profiles', ProfileController::class)->middleware('auth');
+Route::get('/profile', [ProfileController::class, 'index'])->middleware('auth');
+Route::post('/profile', [ProfileController::class, 'update'])->middleware('auth');
 
 Route::get('/search', SearchController::class);
 

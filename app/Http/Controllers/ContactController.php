@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreContactRequest;
 use App\Models\Contact;
 use App\Models\User;
+use App\Services\ContactService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ContactController extends Controller
 {
@@ -50,17 +53,15 @@ class ContactController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreContactRequest $request)
     {
-        $contact = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255'],
-            'number' => ['required', 'string', 'max:255'],
-        ]);
+        $data = $request->validated();
 
-        auth()->user()->contacts()->create($contact);
+        $user = $request->user();
 
-        return redirect('/');
+        $user->contacts()->create($data);
+
+        return redirect('/contacts');
     }
 
     /**
@@ -97,9 +98,9 @@ class ContactController extends Controller
     public function update(Request $request, Contact $contact)
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255'],
-            'number' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:20'],
+            'email' => ['required', 'string', 'email', Rule::unique('contacts')->ignore($contact->id),],
+            'number' => ['required', 'regex:/^\+7\d{10}$/', Rule::unique('contacts')->ignore($contact->id),],
         ]);
 
         if ($contact->user_id !== auth()->id()) {
@@ -108,7 +109,7 @@ class ContactController extends Controller
 
         $contact->update($data);
 
-        return redirect('/contacts');
+        return redirect('/contacts/' . $contact->id);
     }
 
     /**

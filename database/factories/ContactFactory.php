@@ -21,7 +21,7 @@ class ContactFactory extends Factory
             'user_id' => User::where('email', 'test@example.com')->first()->id,
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'number' => fake()->phoneNumber(),
+            'number' => '+7' . fake()->numerify('##########'),
         ];
     }
 }

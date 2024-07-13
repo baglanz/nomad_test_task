@@ -15,7 +15,7 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        $user = User::get()->where('id', Auth::id());
+        $user = User::where('id', Auth::id())->get();
 
         if (!$user) {
             return response()->json([

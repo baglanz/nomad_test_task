@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreContactRequest;
 use App\Models\Contact;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +15,7 @@ class ContactController extends Controller
      */
     public function index()
     {
-        $contacts = Contact::get()->where('user_id', Auth::id());
+        $contacts = Contact::where('user_id', Auth::id())->get();
 
         if (!$contacts) {
             return response()->json([
@@ -28,31 +29,23 @@ class ContactController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreContactRequest $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:contacts',
-            'number' => 'required',
-        ]);
+        $data = $request->validated();
 
-        $contact = Contact::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'number' => $request->number,
-        ]);
+        $user = $request->user();
 
-        return response()->json($contact, 201);
+        $user->contacts()->create($data);
+
+        return response()->json($data);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Contact $contact)
     {
-        $contact = Contact::findOrFail($id);
-
-        if (Auth::id() !== $contact->user_id) {
+        if ($contact->user_id !== auth()->id()) {
             return response()->json([
                 'error' => 'Unauthorized'
             ], 403);
@@ -64,27 +57,21 @@ class ContactController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Contact $contact)
     {
-        $contact = Contact::where('user_id', Auth::id())->find($id);
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:20'],
+            'email' => ['required', 'string', 'email', 'unique:contacts', 'max:255'],
+            'number' => ['required', 'regex:/^\+7\d{10}$/', 'unique:contacts'],
+        ]);
 
-        if (!$contact) {
+        if ($contact->user_id !== auth()->id()) {
             return response()->json([
                 'error' => 'Unauthorized'
             ], 403);
         }
 
-        $data = $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:contacts',
-            'number' => 'required',
-        ]);
-
-        $contact->update([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'number' => $data['number'],
-        ]);
+        $contact->update($data);
 
         return response()->json($contact);
     }
@@ -92,11 +79,9 @@ class ContactController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Contact $contact)
     {
-        $contact = Contact::where('user_id', Auth::id())->find($id);
-
-        if (!$contact) {
+        if ($contact->user_id !== auth()->id()) {
             return response()->json([
                 'error' => 'Unauthorized'
             ], 403);

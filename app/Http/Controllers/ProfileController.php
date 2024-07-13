@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
 use App\Services\ProfileService;
-use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
@@ -14,7 +13,7 @@ class ProfileController extends Controller
     public function index()
     {
         return view('profile.edit', [
-            'user' => Auth::user()
+            'user' => auth()->user(),
         ]);
     }
 
@@ -27,7 +26,7 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        $service->update($user, $data) ;
+        $service->update($user, $data);
 
         return redirect('/profile');
     }

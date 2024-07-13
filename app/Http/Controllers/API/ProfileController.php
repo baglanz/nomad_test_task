@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Models\User;
 use App\Services\ProfileService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
@@ -29,13 +29,9 @@ class ProfileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function store(Request $request, ProfileService $service)
+    public function store(UpdateProfileRequest $request, ProfileService $service)
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'number' => ['required', 'regex:/^\+7\d{10}$/'],
-            'password' => ['nullable', 'confirmed', 'string', 'min:6'],
-        ]);
+        $data = $request->validated();
 
         $user = $request->user();
 

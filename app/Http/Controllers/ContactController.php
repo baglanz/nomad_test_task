@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contact;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ContactController extends Controller
 {
@@ -13,7 +13,10 @@ class ContactController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Contact::query();
+        /** @var User $user */
+        $user = $request->user();
+
+        $query = $user->contacts();
 
         if ($request->filled('q')) {
             $search = $request->input('q');
@@ -24,12 +27,10 @@ class ContactController extends Controller
             });
         }
 
-        $sortField = $request->input('sortField', 'name');
+        $sortField = $request->input('sortField', 'id');
         $sortOrder = $request->input('sortOrder', 'asc');
 
-        $query->orderBy($sortField, $sortOrder);
-
-        $contacts = $query->where('user_id', Auth::user()->id)->get();
+        $contacts = $query->orderBy($sortField, $sortOrder)->get();
 
         return view('contacts.index', [
             'contacts' => $contacts,
@@ -57,7 +58,7 @@ class ContactController extends Controller
             'number' => ['required', 'string', 'max:255'],
         ]);
 
-        Auth::user()->contacts()->create($contact);
+        auth()->user()->contacts()->create($contact);
 
         return redirect('/');
     }
@@ -65,39 +66,47 @@ class ContactController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Contact $contact)
     {
-        $contacts = Contact::get()->where('id', $id);
+        if ($contact->user_id !== auth()->id()) {
+            abort(404);
+        }
 
         return view('contacts.show', [
-            'contacts' => $contacts,
+            'contact' => $contact,
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Contact $contact)
     {
-        $contacts = Contact::get()->where('id', $id);
+        if ($contact->user_id !== auth()->id()) {
+            abort(404);
+        }
 
         return view('contacts.edit', [
-            'contacts' => $contacts,
+            'contact' => $contact,
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Contact $contact)
     {
-        $contact = $request->validate([
+        $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],
             'number' => ['required', 'string', 'max:255'],
         ]);
 
-        Auth::user()->contacts()->where('id', $id)->update($contact);
+        if ($contact->user_id !== auth()->id()) {
+            abort(404);
+        }
+
+        $contact->update($data);
 
         return redirect('/contacts');
     }
@@ -105,9 +114,13 @@ class ContactController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Contact $contact)
     {
-        Auth::user()->contacts()->where('id', $id)->delete();
+        if ($contact->user_id !== auth()->id()) {
+            abort(404);
+        }
+
+        $contact->delete();
 
         return redirect('/contacts');
     }
